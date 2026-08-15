@@ -1,443 +1,619 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>GN-Math</title>
-
-<style>
-
-body {
-    margin:0;
-    overflow:hidden;
-    font-family:Arial, sans-serif;
-}
-
-
-/* GN-Math page */
-iframe {
-    width:100vw;
-    height:100vh;
-    border:none;
-}
-
-
-/* AI button */
-
-#aiButton {
-
-    position:fixed;
-    right:20px;
-    bottom:20px;
-
-    background:#fc2651;
-    color:white;
-
-    border:none;
-    border-radius:50px;
-
-    padding:15px 25px;
-
-    font-size:18px;
-    cursor:pointer;
-
-    z-index:99999;
-
-    box-shadow:0 5px 20px rgba(0,0,0,.4);
-
-}
-
-
-/* AI Window */
-
-#aiBox {
-
-    display:none;
-
-    position:fixed;
-
-    right:20px;
-    bottom:85px;
-
-    width:350px;
-    height:450px;
-
-    background:#1e293b;
-
-    color:white;
-
-    border-radius:15px;
-
-    overflow:hidden;
-
-    box-shadow:0 10px 40px black;
-
-    z-index:99999;
-
-}
-
-
-/* Header */
-
-#aiHeader {
-
-    background:#fc2651;
-
-    padding:12px;
-
-    font-size:18px;
-
-    font-weight:bold;
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-}
-
-
-#closeAI {
-
-    background:none;
-
-    border:none;
-
-    color:white;
-
-    font-size:25px;
-
-    cursor:pointer;
-
-}
-
-
-/* Chat */
-
-#chat {
-
-    height:330px;
-
-    overflow-y:auto;
-
-    padding:12px;
-
-}
-
-
-.message {
-
-    margin-bottom:10px;
-
-}
-
-
-.you {
-
-    color:#38bdf8;
-
-}
-
-
-.bot {
-
-    color:#f472b6;
-
-}
-
-
-/* Input */
-
-#inputArea {
-
-    display:flex;
-
-    gap:5px;
-
-    padding:10px;
-
-}
-
-
-#msg {
-
-    flex:1;
-
-    padding:10px;
-
-    border-radius:8px;
-
-    border:none;
-
-}
-
-
-#send {
-
-    padding:10px;
-
-    border:none;
-
-    border-radius:8px;
-
-    cursor:pointer;
-
-}
-
-
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GN-Math AI</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(135deg, #fc2651, #e91e47);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        button {
+            border: none;
+            cursor: pointer;
+        }
+
+        #clearMemory {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+
+        #clearMemory:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        #chat {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 15px;
+            border-radius: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .user {
+            align-self: flex-end;
+            background: #fc2651;
+        }
+
+        .ai {
+            align-self: flex-start;
+            background: #1e293b;
+            border: 1px solid #334155;
+        }
+
+        .typing {
+            opacity: 0.6;
+            font-style: italic;
+        }
+
+        #inputArea {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            background: #1e293b;
+            border-top: 1px solid #334155;
+        }
+
+        #messageInput {
+            flex: 1;
+            padding: 13px;
+            border-radius: 10px;
+            border: 1px solid #475569;
+            background: #0f172a;
+            color: white;
+            outline: none;
+            font-size: 15px;
+        }
+
+        #messageInput:focus {
+            border-color: #fc2651;
+        }
+
+        #send {
+            background: #fc2651;
+            color: white;
+            padding: 0 20px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        #send:hover {
+            background: #ff4d75;
+        }
+
+        .memory-status {
+            font-size: 11px;
+            color: #94a3b8;
+            text-align: center;
+            padding: 5px;
+        }
+    </style>
 </head>
-
 
 <body>
 
+<header>
+    <h1>GN-Math AI</h1>
 
-<!-- Existing GN-Math -->
+    <div class="header-buttons">
+        <button id="clearMemory">Clear Memory</button>
+    </div>
+</header>
 
-<iframe src="gn-math.html"></iframe>
+<div id="chat"></div>
 
-
-
-<!-- AI Button -->
-
-<button id="aiButton">
-🤖 AI
-</button>
-
-
-
-<!-- AI Dropdown -->
-
-<div id="aiBox">
-
-
-<div id="aiHeader">
-
-GN-Math AI
-
-<button id="closeAI">
-×
-</button>
-
+<div class="memory-status" id="memoryStatus">
+    Memory enabled
 </div>
-
-
-
-<div id="chat">
-
-<div class="message bot">
-AI: Hello! Ask me anything! (Made by koolkid19028
-</div>
-
-</div>
-
-
 
 <div id="inputArea">
+    <input
+        id="messageInput"
+        type="text"
+        placeholder="Ask the AI something..."
+        autocomplete="off"
+    >
 
-<input id="msg" placeholder="Ask something...">
-
-<button id="send">
-Send
-</button>
-
+    <button id="send">Send</button>
 </div>
-
-
-</div>
-
-
 
 <script>
 
+const MEMORY_KEY = "gnMathAIMemory";
+const CHAT_KEY = "gnMathAIChat";
 
-const aiButton =
-document.getElementById("aiButton");
-
-
-const aiBox =
-document.getElementById("aiBox");
+let memory;
+let chatHistory;
 
 
-const closeAI =
-document.getElementById("closeAI");
+/*
+    ==========================================
+    MEMORY INITIALIZATION
+    ==========================================
+*/
+
+function initializeMemory() {
+
+    const savedMemory = localStorage.getItem(MEMORY_KEY);
+
+    if (!savedMemory) {
+
+        console.log("No memory found. Creating memory.");
+
+        memory = {
+            name: null,
+            facts: [],
+            preferences: [],
+            notes: []
+        };
+
+        localStorage.setItem(
+            MEMORY_KEY,
+            JSON.stringify(memory)
+        );
+
+    } else {
+
+        try {
+
+            memory = JSON.parse(savedMemory);
+
+        } catch (error) {
+
+            console.error("Memory was corrupted. Creating new memory.");
+
+            memory = {
+                name: null,
+                facts: [],
+                preferences: [],
+                notes: []
+            };
+
+            localStorage.setItem(
+                MEMORY_KEY,
+                JSON.stringify(memory)
+            );
+        }
+    }
+}
 
 
-const sendButton =
-document.getElementById("send");
+/*
+    ==========================================
+    CHAT HISTORY
+    ==========================================
+*/
+
+function initializeChat() {
+
+    const savedChat = localStorage.getItem(CHAT_KEY);
+
+    if (!savedChat) {
+
+        chatHistory = [];
+
+        localStorage.setItem(
+            CHAT_KEY,
+            JSON.stringify(chatHistory)
+        );
+
+    } else {
+
+        try {
+
+            chatHistory = JSON.parse(savedChat);
+
+            if (!Array.isArray(chatHistory)) {
+                chatHistory = [];
+            }
+
+        } catch {
+
+            chatHistory = [];
+
+            localStorage.setItem(
+                CHAT_KEY,
+                JSON.stringify(chatHistory)
+            );
+        }
+    }
+}
 
 
-const input =
-document.getElementById("msg");
+/*
+    ==========================================
+    SAVE MEMORY
+    ==========================================
+*/
+
+function saveMemory() {
+
+    localStorage.setItem(
+        MEMORY_KEY,
+        JSON.stringify(memory)
+    );
+
+    updateMemoryStatus();
+}
 
 
-const chat =
-document.getElementById("chat");
+/*
+    ==========================================
+    SAVE CHAT
+    ==========================================
+*/
 
+function saveChat() {
 
+    /*
+        Keep the last 50 messages so localStorage
+        doesn't grow forever.
+    */
 
-aiButton.onclick = () => {
-
-    aiBox.style.display =
-    aiBox.style.display === "block"
-    ? "none"
-    : "block";
-
-};
-
-
-
-closeAI.onclick = () => {
-
-    aiBox.style.display="none";
-
-};
-
-
-
-sendButton.onclick = send;
-
-
-
-input.addEventListener(
-"keydown",
-function(e){
-
-    if(e.key==="Enter"){
-
-        send();
-
+    if (chatHistory.length > 50) {
+        chatHistory = chatHistory.slice(-50);
     }
 
-});
+    localStorage.setItem(
+        CHAT_KEY,
+        JSON.stringify(chatHistory)
+    );
+}
 
 
+/*
+    ==========================================
+    DISPLAY CHAT
+    ==========================================
+*/
 
-async function send(){
+function addMessage(text, type) {
 
+    const message = document.createElement("div");
 
-    let text=input.value.trim();
+    message.className =
+        "message " +
+        (type === "user" ? "user" : "ai");
 
+    message.textContent = text;
 
-    if(!text) return;
+    document.getElementById("chat").appendChild(message);
 
+    document.getElementById("chat").scrollTop =
+        document.getElementById("chat").scrollHeight;
 
-
-    chat.innerHTML += `
-
-    <div class="message you">
-    You: ${text}
-    </div>
-
-    `;
-
-
-    input.value="";
-
-
-
-    chat.innerHTML += `
-
-    <div class="message bot" id="thinking">
-    AI: Thinking...
-    </div>
-
-    `;
+    return message;
+}
 
 
+/*
+    ==========================================
+    LOAD OLD CHAT
+    ==========================================
+*/
 
-    chat.scrollTop =
-    chat.scrollHeight;
+function displayOldChat() {
 
+    const chat = document.getElementById("chat");
+
+    chat.innerHTML = "";
+
+    for (const message of chatHistory) {
+
+        if (
+            message.role !== "user" &&
+            message.role !== "assistant"
+        ) {
+            continue;
+        }
+
+        addMessage(
+            message.content,
+            message.role === "user"
+                ? "user"
+                : "ai"
+        );
+    }
+}
+
+
+/*
+    ==========================================
+    MEMORY STATUS
+    ==========================================
+*/
+
+function updateMemoryStatus() {
+
+    let factCount =
+        memory.facts?.length || 0;
+
+    let preferenceCount =
+        memory.preferences?.length || 0;
+
+    document.getElementById("memoryStatus").textContent =
+        `Memory enabled • ${factCount + preferenceCount} saved memories`;
+}
+
+
+/*
+    ==========================================
+    SEND MESSAGE
+    ==========================================
+*/
+
+async function sendMessage() {
+
+    const input =
+        document.getElementById("messageInput");
+
+    const text = input.value.trim();
+
+    if (!text) return;
+
+    input.value = "";
+
+    addMessage(text, "user");
+
+    chatHistory.push({
+        role: "user",
+        content: text
+    });
+
+    saveChat();
+
+    const typing = document.createElement("div");
+
+    typing.className =
+        "message ai typing";
+
+    typing.textContent =
+        "GN-Math AI is thinking...";
+
+    document.getElementById("chat").appendChild(typing);
 
 
     try {
 
+        const response = await fetch("/api/chat", {
 
-        let response =
-        await fetch("/api/chat",
-        {
+            method: "POST",
 
-            method:"POST",
-
-            headers:{
-
-                "Content-Type":
-                "application/json"
-
+            headers: {
+                "Content-Type": "application/json"
             },
 
-            body:JSON.stringify({
+            body: JSON.stringify({
 
-                message:text
+                message: text,
+
+                memory: memory,
+
+                history: chatHistory.slice(-20)
 
             })
-
         });
 
 
-
-        let data =
-        await response.json();
-
+        const rawResponse =
+            await response.text();
 
 
-        document
-        .getElementById("thinking")
-        .remove();
+        let data;
+
+        try {
+
+            data = JSON.parse(rawResponse);
+
+        } catch {
+
+            throw new Error(
+                "Server returned invalid JSON: " +
+                rawResponse.substring(0, 200)
+            );
+        }
 
 
+        if (!response.ok) {
 
-        chat.innerHTML += `
-
-        <div class="message bot">
-
-        AI: ${data.reply}
-
-        </div>
-
-        `;
+            throw new Error(
+                data.error || "AI request failed."
+            );
+        }
 
 
+        typing.remove();
+
+
+        const reply =
+            data.reply || "I didn't get a response.";
+
+
+        addMessage(reply, "ai");
+
+
+        chatHistory.push({
+            role: "assistant",
+            content: reply
+        });
+
+        saveChat();
+
+
+        /*
+            The server can return updated memory.
+        */
+
+        if (data.memory) {
+
+            memory = data.memory;
+
+            saveMemory();
+        }
+
+
+    } catch (error) {
+
+        typing.remove();
+
+        console.error(error);
+
+        addMessage(
+            "AI Error: " + error.message,
+            "ai"
+        );
     }
-
-    catch(error){
-
-
-        document
-        .getElementById("thinking")
-        .remove();
-
-
-        chat.innerHTML += `
-
-        <div class="message bot">
-
-        AI Error: ${error.message}
-
-        </div>
-
-        `;
-
-
-    }
-
-
-
-    chat.scrollTop =
-    chat.scrollHeight;
-
-
 }
 
 
+/*
+    ==========================================
+    CLEAR MEMORY
+    ==========================================
+*/
+
+document
+    .getElementById("clearMemory")
+    .addEventListener("click", () => {
+
+        const confirmed =
+            confirm(
+                "Clear the AI's memory and conversation history?"
+            );
+
+        if (!confirmed) return;
+
+
+        memory = {
+            name: null,
+            facts: [],
+            preferences: [],
+            notes: []
+        };
+
+
+        chatHistory = [];
+
+
+        localStorage.setItem(
+            MEMORY_KEY,
+            JSON.stringify(memory)
+        );
+
+
+        localStorage.setItem(
+            CHAT_KEY,
+            JSON.stringify(chatHistory)
+        );
+
+
+        document.getElementById("chat").innerHTML = "";
+
+
+        addMessage(
+            "Memory cleared. I'll start fresh!",
+            "ai"
+        );
+
+
+        updateMemoryStatus();
+    });
+
+
+/*
+    ==========================================
+    BUTTON
+    ==========================================
+*/
+
+document
+    .getElementById("send")
+    .addEventListener(
+        "click",
+        sendMessage
+    );
+
+
+/*
+    ENTER TO SEND
+*/
+
+document
+    .getElementById("messageInput")
+    .addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key === "Enter" &&
+                !event.shiftKey
+            ) {
+
+                event.preventDefault();
+
+                sendMessage();
+            }
+        }
+    );
+
+
+/*
+    ==========================================
+    START
+    ==========================================
+*/
+
+initializeMemory();
+
+initializeChat();
+
+displayOldChat();
+
+updateMemoryStatus();
 
 </script>
 
-
 </body>
-
 </html>
