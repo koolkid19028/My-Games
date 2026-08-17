@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>GN-Math</title>
+
+    <style>
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        /* GN-Math page */
+
+        iframe {
+            width: 100vw;
+            height: 100vh;
+            border: none;
+        }
+
+
+        /* AI Button */
+
+        #aiButton {
+            position: fixed;
+
+            right: 20px;
+            bottom: 20px;
+
+            background: #fc2651;
+            color: white;
+
+            border: none;
+            border-radius: 50px;
+
+            padding: 15px 25px;
+
+            font-size: 18px;
+            cursor: pointer;
+
+            z-index: 99999;
+
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+        }
+
+
+        /* AI Window */
+
+        #aiBox {
+            display: none;
+
+            position: fixed;
+
+            right: 20px;
+            bottom: 85px;
+
+            width: 350px;
+            height: 450px;
+
+            background: #1e293b;
+            color: white;
+
+            border-radius: 15px;
+
+            overflow: hidden;
+
+            box-shadow: 0 10px 40px black;
+
+            z-index: 99999;
+        }
+
+
+        /* Header */
+
+        #aiHeader {
+            background: #fc2651;
+
+            padding: 12px;
+
+            font-size: 18px;
+            font-weight: bold;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+
+        #closeAI {
+            background: none;
+            border: none;
+
+            color: white;
+
+            font-size: 25px;
+
+            cursor: pointer;
+        }
+
+
+        /* Chat */
+
+        #chat {
+            height: 330px;
+
+            overflow-y: auto;
+
+            padding: 12px;
+
+            box-sizing: border-box;
+        }
+
+
+        .message {
+            margin-bottom: 10px;
+            word-wrap: break-word;
+        }
+
+
+        .you {
+            color: #38bdf8;
+        }
+
+
+        .bot {
+            color: #f472b6;
+        }
+
+
+        /* Input */
+
+        #inputArea {
+            display: flex;
+
+            gap: 5px;
+
+            padding: 10px;
+
+            box-sizing: border-box;
+        }
+
+
+        #msg {
+            flex: 1;
+
+            padding: 10px;
+
+            border-radius: 8px;
+
+            border: none;
+
+            outline: none;
+        }
+
+
+        #send {
+            padding: 10px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            cursor: pointer;
+        }
+
+
+        #send:hover {
+            opacity: 0.85;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- GN-Math -->
+
+    <iframe src="gn-math.html"></iframe>
+
+
+    <!-- AI Button -->
+
+    <button id="aiButton">
+        🤖 AI
+    </button>
+
+
+    <!-- AI Window -->
+
+    <div id="aiBox">
+
+
+        <div id="aiHeader">
+
+            GN-Math AI
+
+            <button id="closeAI">
+                ×
+            </button>
+
+        </div>
+
+
+        <div id="chat">
+
+            <div class="message bot">
+                AI: Hello! Ask me anything. (Build credits to koolkid19028)
+            </div>
+
+        </div>
+
+
+        <div id="inputArea">
+
+            <input
+                id="msg"
+                type="text"
+                placeholder="Ask something..."
+                autocomplete="off"
+            >
+
+            <button id="send">
+                Send
+            </button>
+
+        </div>
+
+
+    </div>
+
+
+    <script>
+
+        // Get elements
+
+        const aiButton = document.getElementById("aiButton");
+
+        const aiBox = document.getElementById("aiBox");
+
+        const closeAI = document.getElementById("closeAI");
+
+        const sendButton = document.getElementById("send");
+
+        const input = document.getElementById("msg");
+
+        const chat = document.getElementById("chat");
+
+
+        // Open AI
+
+        aiButton.addEventListener("click", function () {
+
+            if (aiBox.style.display === "block") {
+
+                aiBox.style.display = "none";
+
+            } else {
+
+                aiBox.style.display = "block";
+
+                input.focus();
+
+            }
+
+        });
+
+
+        // Close AI
+
+        closeAI.addEventListener("click", function () {
+
+            aiBox.style.display = "none";
+
+        });
+
+
+        // Send button
+
+        sendButton.addEventListener("click", send);
+
+
+        // Enter key
+
+        input.addEventListener("keydown", function (event) {
+
+            if (event.key === "Enter") {
+
+                event.preventDefault();
+
+                send();
+
+            }
+
+        });
+
+
+        // Send message
+
+        async function send() {
+
+            const text = input.value.trim();
+
+            if (!text) {
+                return;
+            }
+
+
+            // Add user's message
+
+            const userMessage = document.createElement("div");
+
+            userMessage.className = "message you";
+
+            userMessage.textContent = "You: " + text;
+
+            chat.appendChild(userMessage);
+
+
+            // Clear input
+
+            input.value = "";
+
+
+            // Thinking message
+
+            const thinking = document.createElement("div");
+
+            thinking.className = "message bot";
+
+            thinking.textContent = "AI: Thinking...";
+
+            chat.appendChild(thinking);
+
+
+            chat.scrollTop = chat.scrollHeight;
+
+
+            try {
+
+                /*
+                    Your API file is:
+
+                    GN-Math/api/chat.js
+
+                    Since GN-Math is a subfolder,
+                    we call:
+
+                    /GN-Math/api/chat
+                */
+
+                const response = await fetch(
+                    "/GN-Math/api/chat",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            message: text
+                        })
+                    }
+                );
+
+
+                const data = await response.json();
+
+
+                // Remove "Thinking..."
+
+                thinking.remove();
+
+
+                // Check for API error
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.error || "API request failed"
+                    );
+
+                }
+
+
+                // Add AI response
+
+                const botMessage = document.createElement("div");
+
+                botMessage.className = "message bot";
+
+                botMessage.textContent =
+                    "AI: " + data.reply;
+
+                chat.appendChild(botMessage);
+
+
+            } catch (error) {
+
+                thinking.remove();
+
+
+                const errorMessage =
+                    document.createElement("div");
+
+                errorMessage.className = "message bot";
+
+                errorMessage.textContent =
+                    "AI Error: " + error.message;
+
+                chat.appendChild(errorMessage);
+
+                console.error(
+                    "GN-Math AI error:",
+                    error
+                );
+
+            }
+
+
+            chat.scrollTop = chat.scrollHeight;
+
+        }
+
+    </script>
+
+
+</body>
+
+</html>
