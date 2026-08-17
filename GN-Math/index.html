@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>GN-Math</title>
+
+<style>
+
+body {
+    margin:0;
+    overflow:hidden;
+    font-family:Arial, sans-serif;
+}
+
+
+/* GN-Math page */
+iframe {
+    width:100vw;
+    height:100vh;
+    border:none;
+}
+
+
+/* AI button */
+
+#aiButton {
+
+    position:fixed;
+    right:20px;
+    bottom:20px;
+
+    background:#fc2651;
+    color:white;
+
+    border:none;
+    border-radius:50px;
+
+    padding:15px 25px;
+
+    font-size:18px;
+    cursor:pointer;
+
+    z-index:99999;
+
+    box-shadow:0 5px 20px rgba(0,0,0,.4);
+
+}
+
+
+/* AI Window */
+
+#aiBox {
+
+    display:none;
+
+    position:fixed;
+
+    right:20px;
+    bottom:85px;
+
+    width:350px;
+    height:450px;
+
+    background:#1e293b;
+
+    color:white;
+
+    border-radius:15px;
+
+    overflow:hidden;
+
+    box-shadow:0 10px 40px black;
+
+    z-index:99999;
+
+}
+
+
+/* Header */
+
+#aiHeader {
+
+    background:#fc2651;
+
+    padding:12px;
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+}
+
+
+#closeAI {
+
+    background:none;
+
+    border:none;
+
+    color:white;
+
+    font-size:25px;
+
+    cursor:pointer;
+
+}
+
+
+/* Chat */
+
+#chat {
+
+    height:330px;
+
+    overflow-y:auto;
+
+    padding:12px;
+
+}
+
+
+.message {
+
+    margin-bottom:10px;
+
+}
+
+
+.you {
+
+    color:#38bdf8;
+
+}
+
+
+.bot {
+
+    color:#f472b6;
+
+}
+
+
+/* Input */
+
+#inputArea {
+
+    display:flex;
+
+    gap:5px;
+
+    padding:10px;
+
+}
+
+
+#msg {
+
+    flex:1;
+
+    padding:10px;
+
+    border-radius:8px;
+
+    border:none;
+
+}
+
+
+#send {
+
+    padding:10px;
+
+    border:none;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+}
+
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- Existing GN-Math -->
+
+<iframe src="gn-math.html"></iframe>
+
+
+
+<!-- AI Button -->
+
+<button id="aiButton">
+🤖 AI
+</button>
+
+
+
+<!-- AI Dropdown -->
+
+<div id="aiBox">
+
+
+<div id="aiHeader">
+
+GN-Math AI
+
+<button id="closeAI">
+×
+</button>
+
+</div>
+
+
+
+<div id="chat">
+
+<div class="message bot">
+AI: Hello! Ask me anything.
+</div>
+
+</div>
+
+
+
+<div id="inputArea">
+
+<input id="msg" placeholder="Ask something...">
+
+<button id="send">
+Send
+</button>
+
+</div>
+
+
+</div>
+
+
+
+<script>
+
+
+const aiButton =
+document.getElementById("aiButton");
+
+
+const aiBox =
+document.getElementById("aiBox");
+
+
+const closeAI =
+document.getElementById("closeAI");
+
+
+const sendButton =
+document.getElementById("send");
+
+
+const input =
+document.getElementById("msg");
+
+
+const chat =
+document.getElementById("chat");
+
+
+
+aiButton.onclick = () => {
+
+    aiBox.style.display =
+    aiBox.style.display === "block"
+    ? "none"
+    : "block";
+
+};
+
+
+
+closeAI.onclick = () => {
+
+    aiBox.style.display="none";
+
+};
+
+
+
+sendButton.onclick = send;
+
+
+
+input.addEventListener(
+"keydown",
+function(e){
+
+    if(e.key==="Enter"){
+
+        send();
+
+    }
+
+});
+
+
+
+async function send(){
+
+
+    let text=input.value.trim();
+
+
+    if(!text) return;
+
+
+
+    chat.innerHTML += `
+
+    <div class="message you">
+    You: ${text}
+    </div>
+
+    `;
+
+
+    input.value="";
+
+
+
+    chat.innerHTML += `
+
+    <div class="message bot" id="thinking">
+    AI: Thinking...
+    </div>
+
+    `;
+
+
+
+    chat.scrollTop =
+    chat.scrollHeight;
+
+
+
+    try {
+
+
+        let response =
+        await fetch("/api/chat",
+        {
+
+            method:"POST",
+
+            headers:{
+
+                "Content-Type":
+                "application/json"
+
+            },
+
+            body:JSON.stringify({
+
+                message:text
+
+            })
+
+        });
+
+
+
+        let data =
+        await response.json();
+
+
+
+        document
+        .getElementById("thinking")
+        .remove();
+
+
+
+        chat.innerHTML += `
+
+        <div class="message bot">
+
+        AI: ${data.reply}
+
+        </div>
+
+        `;
+
+
+    }
+
+    catch(error){
+
+
+        document
+        .getElementById("thinking")
+        .remove();
+
+
+        chat.innerHTML += `
+
+        <div class="message bot">
+
+        AI Error: ${error.message}
+
+        </div>
+
+        `;
+
+
+    }
+
+
+
+    chat.scrollTop =
+    chat.scrollHeight;
+
+
+}
+
+
+
+</script>
+
+
+</body>
+
+</html>
